@@ -1,6 +1,7 @@
 ﻿using backend.data;
 using backend.DTOs.todo;
 using backend.enums;
+using backend.exceptions;
 using backend.models;
 using backend.services.interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -66,6 +67,40 @@ public class TodoService(
         LastUpdatedAt = t.LastUpdatedAt
       }).ToListAsync();
   }
+
+  
+  // =============================== UPDATE =============================== //
+  public async Task<TodoResponseDto> UpdateTodoAsync(Guid todoId, UpdateTodoDto dto)
+  {
+    var userId = _currentUserService.GetRequiredUserId();
+
+    var todo = await _dbContext.Todos
+      .FirstOrDefaultAsync(t => 
+        t.TodoId == todoId &&
+        t.UserId == userId)
+     ?? throw new ResourceNotFoundException("Todo not found");
+
+    todo.Title = dto.Title?.Trim() ?? todo.Title;
+    todo.Description = dto.Description?.Trim() ?? todo.Description;
+    todo.LastUpdatedAt = DateTime.UtcNow;
+    if (dto.Status.HasValue) 
+      todo.Status = dto.Status.Value;
+
+    await _dbContext.SaveChangesAsync();
+
+    return new TodoResponseDto
+    {
+      TodoId = todo.TodoId,
+      UserId = todo.UserId,
+      Title = todo.Title,
+      Description = todo.Description,
+      Status = todo.Status,
+      CreatedAt = todo.CreatedAt,
+      LastUpdatedAt = todo.LastUpdatedAt
+    };
+  }
+  
+
 
 }
 // Get user's todos

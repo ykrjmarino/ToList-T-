@@ -25,4 +25,11 @@ public class TodoController (ITodoService todoService) : ControllerBase
     var res = await _todoService.GetMyTodosAsync();
     return Ok (res);
   }
+
+  [HttpPut("update/{todoId}")]
+  public async Task<ActionResult<TodoResponseDto>> UpdateTodo(Guid todoId, UpdateTodoDto dto)
+  {
+    var res = await _todoService.UpdateTodoAsync(todoId, dto);
+    return Ok(res);
+  }
 }
