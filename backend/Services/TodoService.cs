@@ -83,7 +83,15 @@ public class TodoService(
         t.UserId == userId)
      ?? throw new ResourceNotFoundException("Todo not found");
 
-    todo.Title = dto.Title?.Trim() ?? todo.Title;
+    // todo.Title = dto.Title?.Trim() ?? todo.Title;
+    if (dto.Title is not null)
+    {
+      var title = dto.Title.Trim();
+      if (string.IsNullOrWhiteSpace(title))
+        throw new ArgumentException("Title cannot be empty or whitespace.");
+      todo.Title = title;
+    }
+
     todo.Description = dto.Description?.Trim() ?? todo.Description;
     todo.LastUpdatedAt = DateTime.UtcNow;
     if (dto.Status.HasValue) 
