@@ -57,7 +57,7 @@ public class AuthService (
   }
 
 
-  //LOGIN
+  // =============================== LOGIN =============================== //
   public async Task<string> LoginAsync(LoginDto dto) //returns jwt
   {
     var user = await _dbContext.Users
