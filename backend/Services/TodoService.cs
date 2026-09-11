@@ -3,6 +3,7 @@ using backend.DTOs.todo;
 using backend.enums;
 using backend.models;
 using backend.services.interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.services;
 
@@ -46,6 +47,26 @@ public class TodoService(
       CreatedAt = todo.CreatedAt,
       LastUpdatedAt = todo.LastUpdatedAt
     }; 
+  }
+
+  // =============================== GET ALL =============================== //
+  public async Task<IEnumerable<TodoResponseDto>> GetMyTodosAsync()
+  {
+    var userId = _currentUserService.UserId;
+    if (userId == Guid.Empty) throw new UnauthorizedAccessException("No authenticated user found.");
+
+    return await _dbContext.Todos
+      .Where(t => t.UserId == userId)
+      .Select(t => new TodoResponseDto
+      {
+        TodoId = t.TodoId,
+        UserId = t.UserId,
+        Title = t.Title,
+        Description = t.Description,
+        Status = t.Status,
+        CreatedAt = t.CreatedAt,
+        LastUpdatedAt = t.LastUpdatedAt
+      }).ToListAsync();
   }
 
 }

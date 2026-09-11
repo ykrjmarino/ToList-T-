@@ -18,4 +18,11 @@ public class TodoController (ITodoService todoService) : ControllerBase
     var res = await _todoService.CreateTodoAsync(dto);
     return Ok (res);
   }
+
+  [HttpGet]
+  public async Task<ActionResult<TodoResponseDto>> GetMyTodos()
+  {
+    var res = await _todoService.GetMyTodosAsync();
+    return Ok (res);
+  }
 }
