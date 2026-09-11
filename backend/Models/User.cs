@@ -1,4 +1,6 @@
-﻿namespace backend.models;
+﻿using backend.enums;
+
+namespace backend.models;
 
 public class User
 {
@@ -9,6 +11,7 @@ public class User
   public required string Email {get; set;}                            //column
   public required string PasswordHash {get; set;}                     //column
 
+  public UserRole Role {get; set;} = UserRole.User;                   //column --enum
   public string Bio { get; set; } = string.Empty;                     //column
   public bool IsActive { get; set; } = true;                          //column
 

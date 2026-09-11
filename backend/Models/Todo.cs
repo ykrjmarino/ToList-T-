@@ -9,7 +9,7 @@ public class Todo
 
   public required string Title { get; set; }                          //column
   public string Description { get; set; } = string.Empty;             //column
-  public TodoStatus Status { get; set; }                              //column
+  public TodoStatus Status { get; set; }                              //column --enum
 
   public DateTime CreatedAt { get; set; } = DateTime.UtcNow;          //column
   public DateTime LastUpdatedAt { get; set; } = DateTime.UtcNow;      //column

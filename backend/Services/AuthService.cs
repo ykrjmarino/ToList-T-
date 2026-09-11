@@ -3,6 +3,7 @@ using backend.DTOs;
 using backend.exceptions;
 using backend.models;
 using backend.services.interfaces;
+using backend.utils;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -10,10 +11,12 @@ namespace backend.services;
 
 public class AuthService (
   AppDbContext dbContext,
-  IPasswordHasher passwordHasher
+  IPasswordHasher passwordHasher,
+  JwtTokenGenerator jwtTokenGenerator
 ) : IAuthService
 {
   private readonly AppDbContext _dbContext = dbContext;
+  private readonly JwtTokenGenerator _jwtTokenGenerator = jwtTokenGenerator;
   private readonly IPasswordHasher _passwordHasher = passwordHasher;
 
   // =============================== REGISTER =============================== //
@@ -51,5 +54,22 @@ public class AuthService (
       Email = newUser.Email,
       Username = newUser.Username
     };
+  }
+
+
+  //LOGIN
+  public async Task<string> LoginAsync(LoginDto dto) //returns jwt
+  {
+    var user = await _dbContext.Users
+      .FirstOrDefaultAsync(u => u.Email == dto.Email)
+       ?? throw new EmailNotFoundException("User not existing. Email not found");
+
+    var isPasswordValid = _passwordHasher.VerifyPassword(dto.Password, user.PasswordHash);
+
+    if (!isPasswordValid) throw new InvalidCredentialsException("Invalid email or password.");
+    if (!user.IsActive) throw new UserDeactivatedException("This account has been deactivated. Please contact support.");
+
+    string token = _jwtTokenGenerator.GenerateToken(user);
+    return token;
   }
 }

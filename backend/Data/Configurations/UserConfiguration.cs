@@ -21,6 +21,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
     builder.Property(u => u.Bio)
       .HasMaxLength(500);
+
+    builder.Property(u => u.Role)
+      .IsRequired();
   }
 }
 
