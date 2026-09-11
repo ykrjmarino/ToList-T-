@@ -32,4 +32,11 @@ public class TodoController (ITodoService todoService) : ControllerBase
     var res = await _todoService.UpdateTodoAsync(todoId, dto);
     return Ok(res);
   }
+
+  [HttpDelete("{todoId}")]
+  public async Task<IActionResult> DeleteTodo(Guid todoId) //IActionResult => "Just returning an HTTP result, not data"
+  {
+    await _todoService.DeleteTodoAsync(todoId);
+    return NoContent();
+  }
 }

@@ -45,7 +45,9 @@ public class TodoService(
       Description = todo.Description,
       Status = todo.Status,
       CreatedAt = todo.CreatedAt,
-      LastUpdatedAt = todo.LastUpdatedAt
+      LastUpdatedAt = todo.LastUpdatedAt,
+      IsDeleted = todo.IsDeleted,
+      DeletedAt = todo.DeletedAt
     }; 
   }
 
@@ -55,7 +57,7 @@ public class TodoService(
     var userId = _currentUserService.GetRequiredUserId();
 
     return await _dbContext.Todos
-      .Where(t => t.UserId == userId)
+      .Where(t => t.UserId == userId && !t.IsDeleted)
       .Select(t => new TodoResponseDto
       {
         TodoId = t.TodoId,
@@ -64,7 +66,9 @@ public class TodoService(
         Description = t.Description,
         Status = t.Status,
         CreatedAt = t.CreatedAt,
-        LastUpdatedAt = t.LastUpdatedAt
+        LastUpdatedAt = t.LastUpdatedAt,
+        IsDeleted = t.IsDeleted,
+        DeletedAt = t.DeletedAt
       }).ToListAsync();
   }
 
@@ -96,10 +100,30 @@ public class TodoService(
       Description = todo.Description,
       Status = todo.Status,
       CreatedAt = todo.CreatedAt,
-      LastUpdatedAt = todo.LastUpdatedAt
+      LastUpdatedAt = todo.LastUpdatedAt,
+      IsDeleted = todo.IsDeleted,
+      DeletedAt = todo.DeletedAt
     };
   }
   
+  public async Task DeleteTodoAsync(Guid todoId)
+  {
+    var userId = _currentUserService.GetRequiredUserId();
+
+    var todo = await _dbContext.Todos
+      .FirstOrDefaultAsync(t =>
+        t.TodoId == todoId &&
+        t.UserId == userId &&
+        !t.IsDeleted
+      ) 
+     ?? throw new ResourceNotFoundException("Todo not found.");
+
+    todo.IsDeleted = true;
+    todo.DeletedAt = DateTime.UtcNow;
+    todo.LastUpdatedAt = DateTime.UtcNow;
+
+    await _dbContext.SaveChangesAsync();
+  }
 
 
 }
