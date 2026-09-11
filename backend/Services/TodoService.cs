@@ -52,12 +52,12 @@ public class TodoService(
   }
 
   // =============================== GET ALL =============================== //
-  public async Task<IEnumerable<TodoResponseDto>> GetMyTodosAsync()
+  public async Task<IEnumerable<TodoResponseDto>> GetMyTodosAsync(bool? isDeleted = null)
   {
     var userId = _currentUserService.GetRequiredUserId();
 
     return await _dbContext.Todos
-      .Where(t => t.UserId == userId && !t.IsDeleted)
+      .Where(t => t.UserId == userId && (!isDeleted.HasValue || t.IsDeleted == isDeleted.Value))
       .Select(t => new TodoResponseDto
       {
         TodoId = t.TodoId,
@@ -71,7 +71,6 @@ public class TodoService(
         DeletedAt = t.DeletedAt
       }).ToListAsync();
   }
-
   
   // =============================== UPDATE =============================== //
   public async Task<TodoResponseDto> UpdateTodoAsync(Guid todoId, UpdateTodoDto dto)
@@ -106,6 +105,7 @@ public class TodoService(
     };
   }
   
+  // =============================== DELETE & RESTORE =============================== //
   public async Task<string> SetTodoDeletedAsync(Guid todoId, bool? isDeleted = null)
   {
     var userId = _currentUserService.GetRequiredUserId();

@@ -20,9 +20,12 @@ public class TodoController (ITodoService todoService) : ControllerBase
   }
 
   [HttpGet]
-  public async Task<ActionResult<TodoResponseDto>> GetMyTodos()
+  public async Task<ActionResult<IEnumerable<TodoResponseDto>>> GetMyTodos([FromQuery] bool? isDeleted = null)
   {
-    var res = await _todoService.GetMyTodosAsync();
+    var res = await _todoService.GetMyTodosAsync(isDeleted); 
+        //false-> active
+        //true-> deleted
+        //null-> all
     return Ok (res);
   }
 
