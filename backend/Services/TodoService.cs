@@ -106,29 +106,29 @@ public class TodoService(
     };
   }
   
-  public async Task DeleteTodoAsync(Guid todoId)
+  public async Task<string> SetTodoDeletedAsync(Guid todoId, bool? isDeleted = null)
   {
     var userId = _currentUserService.GetRequiredUserId();
-
+    
     var todo = await _dbContext.Todos
-      .FirstOrDefaultAsync(t =>
-        t.TodoId == todoId &&
-        t.UserId == userId &&
-        !t.IsDeleted
-      ) 
+      .FirstOrDefaultAsync(t => t.TodoId == todoId && t.UserId == userId) 
      ?? throw new ResourceNotFoundException("Todo not found.");
 
-    todo.IsDeleted = true;
-    todo.DeletedAt = DateTime.UtcNow;
+    bool targetDeletedState = isDeleted ?? true; //if no input (null) -> true
+
+    if (todo.IsDeleted == targetDeletedState) //todo.IsDeleted(from db) == isDeleted (input)
+     return targetDeletedState
+      ? "Todo is already deleted."
+      : "Todo is aleady restored.";
+
+    todo.IsDeleted = targetDeletedState;
+    todo.DeletedAt = targetDeletedState ? DateTime.UtcNow : null;
     todo.LastUpdatedAt = DateTime.UtcNow;
 
     await _dbContext.SaveChangesAsync();
+
+    return targetDeletedState
+      ? "Todo deleted successfully."
+      : "Todo restored successfully.";
   }
-
-
 }
-// Get user's todos
-// Get one todo
-// Create
-// Update
-// Delete

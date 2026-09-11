@@ -33,10 +33,12 @@ public class TodoController (ITodoService todoService) : ControllerBase
     return Ok(res);
   }
 
-  [HttpDelete("{todoId}")]
-  public async Task<IActionResult> DeleteTodo(Guid todoId) //IActionResult => "Just returning an HTTP result, not data"
+  [HttpDelete("{todoId}")] //parameter: isDeleted = true/false
+  public async Task<IActionResult> SetTodoDeleted( //IActionResult => "Just returning an HTTP result, not data"
+    Guid todoId,
+    bool? isDeleted = null)
   {
-    await _todoService.DeleteTodoAsync(todoId);
-    return NoContent();
+    var message = await _todoService.SetTodoDeletedAsync(todoId, isDeleted);
+    return Ok(new { message });
   }
 }
