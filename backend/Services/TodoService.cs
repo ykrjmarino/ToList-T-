@@ -19,8 +19,7 @@ public class TodoService(
   public async Task<TodoResponseDto> CreateTodoAsync(CreateTodoDto dto)
   {
     //from ICurrentUserService --httpContextAccessor
-    var userId = _currentUserService.UserId;
-    if (userId == Guid.Empty) throw new UnauthorizedAccessException("No authenticated user found.");
+    var userId = _currentUserService.GetRequiredUserId();
 
     //store user input (DTO)
     Todo todo = new()
@@ -52,8 +51,7 @@ public class TodoService(
   // =============================== GET ALL =============================== //
   public async Task<IEnumerable<TodoResponseDto>> GetMyTodosAsync()
   {
-    var userId = _currentUserService.UserId;
-    if (userId == Guid.Empty) throw new UnauthorizedAccessException("No authenticated user found.");
+    var userId = _currentUserService.GetRequiredUserId();
 
     return await _dbContext.Todos
       .Where(t => t.UserId == userId)

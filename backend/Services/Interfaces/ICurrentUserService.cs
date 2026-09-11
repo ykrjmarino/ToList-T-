@@ -5,6 +5,8 @@ public interface ICurrentUserService
   Guid UserId { get; }
   string Role { get; }
   bool IsAuthenticated { get; }
+  
+  Guid GetRequiredUserId(); //to shorten the validation if there's a userId
 }
 
 /*
@@ -19,9 +21,7 @@ public class TryService(
 
   public async Task<string> TryAsync(TryDTO dto)
   {
-    // Get the ID cleanly without digging through HttpContext layers
-    var userId = currentUserService.UserId;
-    if (userId == Guid.Empty) throw new UnauthorizedAccessException("No authenticated user found.");
+    var userId = _currentUserService.GetRequiredUserId();    <<<--------
 
     //rest of the logic....
     

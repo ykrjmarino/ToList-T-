@@ -20,4 +20,12 @@ public Guid UserId
     .FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
 
   public bool IsAuthenticated => httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
+
+  public Guid GetRequiredUserId()
+  {
+    var userId = UserId;
+    if (userId == Guid.Empty)
+        throw new UnauthorizedAccessException("No authenticated user found.");
+    return userId;
+  }
 }
